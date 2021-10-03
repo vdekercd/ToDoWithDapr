@@ -1,0 +1,31 @@
+version: '3.4'
+
+services:
+  todowithdapr.app:
+    image: ${DOCKER_REGISTRY-}todowithdaprapp
+    build:
+      context: .
+      dockerfile: ToDoWithDapr.App/Dockerfile
+    ports:
+      - "51000:50001"
+
+  todowithdapr.app-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "todowithdapr.app", "-app-port", "80" ]
+    depends_on:
+      - todowithdapr.app
+    network_mode: "service:todowithdapr.app"
+
+  todowithdapr.api:
+    image: ${DOCKER_REGISTRY-}todowithdaprapi
+    build:
+      context: .
+      dockerfile: ToDoWithDapr.API/Dockerfile
+
+  todowithdapr.api-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "todowithdapr.api", "-app-port", "80" ]
+    depends_on:
+      - todowithdapr.api
+    network_mode: "service:todowithdapr.api"
+
