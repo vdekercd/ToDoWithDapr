@@ -1,5 +1,4 @@
 @inject DaprClient _daprClient;
-@implements IDisposable;
 
 @foreach (var todo in Todos)
 {
@@ -11,8 +10,6 @@
 @code {
     [Parameter]
     public List<Todo> Todos { get; set; } = new List<Todo>();
-
-    Timer _timer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -28,10 +25,4 @@
             });
         }, null, 0, 1000);
     }    
-
-    public void Dispose()
-    {
-        _timer?.Dispose();
-    }
-
 }

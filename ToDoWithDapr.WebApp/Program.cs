@@ -1,22 +1,21 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using System.IO;
+// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+builder.Services.AddMudServices();
+builder.Services.AddDaprClient();
 
-namespace ToDoWithDapr.WebApp
+// Configure the HTTP request pipeline.
+var app = builder.Build();
+app.UseExceptionHandler("/Error");
+app.UseStaticFiles();
+app.UseRouting();
+app.UseEndpoints(endpoints =>
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            //UseContentRoot(Path.GetDirectoryName(typeof(Program).Assembly.Location)).
-            CreateHostBuilder(args).Build().Run();
-        }
+    endpoints.MapBlazorHub();
+    endpoints.MapFallbackToPage("/_Host");
+});
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
-}
+// And of course
+app.Run();
+

@@ -1,7 +1,6 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers().AddDapr(); ;
 builder.Services.AddSwaggerGen(c =>
 {
@@ -11,7 +10,6 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ToDoWithDapr.API v1"));
 app.MapControllers();
@@ -22,4 +20,5 @@ app.UseEndpoints(endpoints =>
     endpoints.MapSubscribeHandler();
 });
 
+// And of course
 app.Run();
