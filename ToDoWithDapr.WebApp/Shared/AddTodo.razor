@@ -1,0 +1,58 @@
+﻿@inject DaprClient _daprClient;
+@inject ISnackbar _snackbar
+
+<div>
+    <div style="width:90%; float: left;"> 
+        <MudTextField @bind-Value="Description" Label="Enter a new todo" Variant="Variant.Text"></MudTextField>
+    </div>
+    <div style="width:10%; float: right; padding-top:20px; padding-left:10px;">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddTodoAsync" Disabled="@_processing">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                <MudText Class="ms-2">Processing</MudText>
+            }
+            else
+            {
+                <i class="fas fa-paper-plane"></i>
+            }
+        </MudButton>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Description { get; set; }
+
+    private bool _processing = false;
+
+    public async Task AddTodoAsync()
+    {
+        if(string.IsNullOrWhiteSpace(Description))
+        {
+            _snackbar.Add("Please enter a description", Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            _processing = true;
+            var todo = new Todo() { 
+                Id = Guid.NewGuid(),
+                Description = Description
+            };
+
+            await _daprClient.InvokeMethodAsync(
+                    HttpMethod.Post,
+                    Constants.API_SIDE_CAR_NAME,
+                    "V1/Todo", todo);
+
+            Description = string.Empty;
+            _snackbar.Add("Todo added sucessfully!", Severity.Success);
+        }
+        finally
+        {
+            _processing = false;
+        }
+    }
+}

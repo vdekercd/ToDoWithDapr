@@ -1,0 +1,68 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "defaultValue": "North Europe",
+            "type": "String"
+        },
+        "environment_name": {
+            "defaultValue": "Production",
+            "type": "String"
+        },
+        "registry_key": {
+            "defaultValue": "fv5ZyldBw2KCWmpo=lJAr4z=3LYuArF2",
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "name": "todowithdapr-app",
+            "type": "Microsoft.Web/containerApps",
+            "apiVersion": "2021-03-01",
+            "kind": "containerapp",
+            "location": "[parameters('location')]",
+            "properties": {
+                "kubeEnvironmentId": "[resourceId('Microsoft.Web/kubeEnvironments', parameters('environment_name'))]",
+                "configuration": {
+                    "ingress": {
+                        "external": true,
+                        "targetPort": 3000
+                    },
+                    "secrets": [
+                        {
+                            "name": "registry-key",
+                            "value": "[parameters('registry_key')]"
+                        }
+                    ],
+                    "registries": [{
+                        "server": "ysoerozoniryx.azurecr.io",
+                        "username": "YsoerozOniryx",
+                        "passwordSecretRef": "registry-key"
+                    }]
+                },
+                "template": {
+                    "containers": [
+                        {
+                            "image": "ysoerozoniryx.azurecr.io/todowithdaprwebapp",
+                            "name": "todowithdaprwebapp",
+                            "resources": {
+                                "cpu": 0.5,
+                                "memory": "1Gi"
+                            }
+                        }
+                    ],
+                    "scale": {
+                        "minReplicas": 1,
+                        "maxReplicas": 1
+                    },
+                    "dapr": {
+                        "enabled": true,
+                        "appId": "todowithdapr-app",
+                        "port": "3001"
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+@inject DaprClient _daprClient;
+@inject ISnackbar _snackbar;
+
+@if(Todo.IsDone) 
+{
+    <span style="text-decoration: line-through;">
+        <MudCheckBox  Checked="@Todo.IsDone" Label="@Todo.Description" CheckedChanged="async(bool b) => await UpdateTodoAsync(b)"></MudCheckBox>
+    </span>
+}
+else
+{
+    <MudCheckBox  Checked="@Todo.IsDone" Label="@Todo.Description" CheckedChanged="async(bool b) => await UpdateTodoAsync(b)"></MudCheckBox>
+}
+<div style="float: right; padding-top:12px;">
+    <MudButton Variant="Variant.Text" OnClick="DeleteTodoAsync"><i class="fas fa-trash-alt"></i></MudButton>
+</div>
+
+@code {
+    [Parameter]
+    public Todo Todo { get; set; }
+
+    public async Task UpdateTodoAsync(bool value)
+    {
+        Todo.IsDone = value;
+        await _daprClient.InvokeMethodAsync(
+                HttpMethod.Put,
+                Constants.API_SIDE_CAR_NAME,
+                $"V1/Todo/{Todo.Id.ToString()}",
+                Todo);
+    }
+
+    public async Task DeleteTodoAsync()
+    {
+        await _daprClient.InvokeMethodAsync(
+                HttpMethod.Delete,
+                Constants.API_SIDE_CAR_NAME,
+                $"V1/Todo/{Todo.Id.ToString()}");
+        _snackbar.Add("Todo deleted sucessfully!", Severity.Success);
+    }
+}

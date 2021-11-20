@@ -5,13 +5,13 @@ services:
     image: ${DOCKER_REGISTRY-}todowithdaprapp
     build:
       context: .
-      dockerfile: ToDoWithDapr.App/Dockerfile
+      dockerfile: ToDoWithDapr.WebApp/Dockerfile
     ports:
-      - "51000:50001"
+      - "5000:5000"
 
   todowithdapr.app-dapr:
     image: "daprio/daprd:latest"
-    command: [ "./daprd", "-app-id", "todowithdapr.app", "-app-port", "80" ]
+    command: [ "./daprd", "-app-id", "todowithdapr.app", "-app-port", "5000" ]
     depends_on:
       - todowithdapr.app
     network_mode: "service:todowithdapr.app"
@@ -21,10 +21,12 @@ services:
     build:
       context: .
       dockerfile: ToDoWithDapr.API/Dockerfile
+    ports:
+      - "5001:5001"
 
   todowithdapr.api-dapr:
     image: "daprio/daprd:latest"
-    command: [ "./daprd", "-app-id", "todowithdapr.api", "-app-port", "80" ]
+    command: [ "./daprd", "-app-id", "todowithdapr.api", "-app-port", "5001" ]
     depends_on:
       - todowithdapr.api
     network_mode: "service:todowithdapr.api"

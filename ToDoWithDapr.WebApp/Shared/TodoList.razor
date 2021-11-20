@@ -1,0 +1,37 @@
+@inject DaprClient _daprClient;
+@implements IDisposable;
+
+@foreach (var todo in Todos)
+{
+    <div style="margin:5px; border-bottom: 1px solid #bdc3c7;">
+    <TodoItem todo="@todo" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public List<Todo> Todos { get; set; } = new List<Todo>();
+
+    Timer _timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var timer = new System.Threading.Timer((_) =>
+        {
+            InvokeAsync( async ()  =>
+            {
+                Todos = await _daprClient.InvokeMethodAsync<List<Todo>>(HttpMethod.Get,
+                    "todowithdapr-api",
+                    "V1/Todo");
+                StateHasChanged();
+            });
+        }, null, 0, 1000);
+    }    
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+
+}
